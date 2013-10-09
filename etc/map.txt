@@ -9,9 +9,9 @@
 7
 8
 9
-0
-[-]
-[=]
+0,.-
+'
+¡
 [BACKSPACE]
 [TAB]
 Q
@@ -51,7 +51,7 @@ N
 M
 [,]
 [.]
-[/]
+[-]
 [RIGHT_SHIFT]
 [KPASTERISK]
 [LEFT_ALT]

