@@ -1,0 +1,16 @@
+Primero se debe definir que input se usará con:
+cat /proc/bus/input/devices
+
+En mi caso es /dev/input/event2, lo identifiqué con esta entrada:
+N: Name="AT Translated Set 2 keyboard"
+....
+H: Handlers=sysrq kbd event2 
+
+
+Luego se debe cambiar el input necesario en src/keylogger.c, en la linea 8 (modificando input_file)
+
+
+El programa debe ser ejecutado como super usuario y desde la raiz del software:
+
+make
+sudo ./build/keylogger.exe
